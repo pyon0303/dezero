@@ -28,16 +28,16 @@ class Variable:
                 
                       
 class Function:
-    def __call__(self, inputs):
+    def __call__(self, *inputs):
         xs = [x.data for x in inputs]    
-        ys = self.forward(xs)
+        ys = self.forward(*xs)
         outputs = [Variable(self.as_array(y)) for y in ys]
         
         for outout in outputs:
             outout.set_creator(self)           
         self.inputs = inputs
         self.outputs = outputs
-        return outputs
+        return outputs if len(outputs) > 1 else outputs[0]
     
     def forward(self, x):
         raise NotImplementedError()
@@ -75,8 +75,7 @@ class Exp(Function):
     
 
 class Add(Function):
-    def forward(self, xs):
-        x0, x1 = xs
+    def forward(self, x0, x1):
         y = x0 + x1
         return (y,)
     
@@ -99,7 +98,8 @@ def exp(x):
     return Exp()(x)
 
 
-xs = [Variable(np.array(2.0)), Variable(np.array(3.0))]
+x0 = Variable(np.array(2.0))
+x1 = Variable(np.array(3.0))
 f = Add()
-ys = f(xs)
-print(ys[0].data)
+ys = f(x0, x1)
+print(ys.data)
