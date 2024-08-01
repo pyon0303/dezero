@@ -1,7 +1,7 @@
 import unittest
 import sys, os
 sys.path.append(os.path.pardir) #append parent dir to import basic
-from basic import *
+from dezero.core import *
 
 class SquareTest(unittest.TestCase):
     def test_forward(self):
