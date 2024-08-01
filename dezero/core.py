@@ -26,17 +26,18 @@ class Variable:
             if x.creator is not None:
                 funcs.append(x.creator)
                 
-                
-        
+                      
 class Function:
-    def __call__(self, input : Variable):
-        x = input.data
-        y = self.forward(x)
-        output = Variable(self.as_array(y))
-        output.set_creator(self)
-        self.input = input
-        self.output = output
-        return output
+    def __call__(self, inputs):
+        xs = [x.data for x in inputs]    
+        ys = self.forward(xs)
+        outputs = [Variable(self.as_array(y)) for y in ys]
+        
+        for outout in outputs:
+            outout.set_creator(self)           
+        self.inputs = inputs
+        self.outputs = outputs
+        return outputs
     
     def forward(self, x):
         raise NotImplementedError()
@@ -72,6 +73,13 @@ class Exp(Function):
         gx = np.exp(x) * gy
         return gx
     
+
+class Add(Function):
+    def forward(self, xs):
+        x0, x1 = xs
+        y = x0 + x1
+        return (y,)
+    
     
 #for gradient checking
 def numerical_diff(f, x, eps=1e-4):
@@ -91,7 +99,7 @@ def exp(x):
     return Exp()(x)
 
 
-x = Variable(np.array(0.5))
-y = square(exp(square(x)))
-y.backward()
-print(x.grad)
+xs = [Variable(np.array(2.0)), Variable(np.array(3.0))]
+f = Add()
+ys = f(xs)
+print(ys[0].data)
