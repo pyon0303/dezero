@@ -14,3 +14,18 @@ class Test13(unittest.TestCase):
         self.assertEqual(x.grad, 4.0)
         self.assertEqual(y.grad, 6.0)
         self.assertEqual(z.data, 13.0)
+        
+
+class Test14(unittest.TestCase):
+    def test_add_same_variable(self):
+        x = Variable(np.array(3.0))
+        y = add(x, x)
+        self.assertEqual(y.data, 6.0)
+        
+        y.backward()
+        self.assertEqual(x.grad, 2.0)
+        
+        x.clear_grad()
+        y = add(add(x,x), x)
+        y.backward()
+        self.assertEqual(x.grad, 3.0)

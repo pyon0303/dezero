@@ -12,7 +12,10 @@ class Variable:
     
     def set_creator(self, func):
         self.creator = func
-        
+    
+    def clear_grad(self):
+        self.grad = None  
+      
     def backward(self):
         if self.grad is None:
             self.grad = np.ones_like(self.data)
@@ -26,7 +29,10 @@ class Variable:
                 gxs = (gxs,)
             
             for x, gx in zip(f.inputs, gxs):
-                x.grad = gx
+                if x.grad is None:
+                    x.grad = gx
+                else:
+                    x.grad = x.grad + gx
                 
                 if x.creator is not None:
                     funcs.append(x.creator)            
