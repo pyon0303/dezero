@@ -20,21 +20,27 @@ class Variable:
         funcs = [self.creator]
         while funcs:
             f = funcs.pop()
-            x, y = f.input, f.output
-            x.grad = f.backward(y.grad)
+            gys = [output.grad for output in f.outputs]
+            gxs = f.backward(*gys) 
+            if not isinstance(gxs, tuple):
+                gxs = (gxs,)
             
-            if x.creator is not None:
-                funcs.append(x.creator)
+            for x, gx in zip(f.inputs, gxs):
+                x.grad = gx
                 
+                if x.creator is not None:
+                    funcs.append(x.creator)            
                       
 class Function:
     def __call__(self, *inputs):
         xs = [x.data for x in inputs]    
         ys = self.forward(*xs)
+        if not isinstance(ys, tuple):
+            ys = (ys,)
         outputs = [Variable(self.as_array(y)) for y in ys]
         
         for outout in outputs:
-            outout.set_creator(self)           
+            outout.set_creator(self)
         self.inputs = inputs
         self.outputs = outputs
         return outputs if len(outputs) > 1 else outputs[0]
@@ -56,10 +62,11 @@ class Function:
 
 class Square(Function):
     def forward(self, x):
-        return x ** 2
+        y =  x ** 2
+        return y
     
     def backward(self, gy):
-        x = self.input.data
+        x = self.inputs[0].data
         gx = 2 * x * gy
         return gx
     
@@ -78,7 +85,9 @@ class Add(Function):
     def forward(self, x0, x1):
         y = x0 + x1
         return (y,)
-    
+   
+    def backward(self, gy):
+        return gy, gy 
     
 #for gradient checking
 def numerical_diff(f, x, eps=1e-4):
@@ -97,6 +106,8 @@ def square(x):
 def exp(x):
     return Exp()(x)
 
+def add(x, y):
+    return Add()(x, y)
 
 x0 = Variable(np.array(2.0))
 x1 = Variable(np.array(3.0))

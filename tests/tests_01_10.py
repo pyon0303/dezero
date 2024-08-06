@@ -1,6 +1,6 @@
 import unittest
 import sys, os
-sys.path.append(os.path.pardir) #append parent dir to import basic
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from dezero.core import *
 
 class SquareTest(unittest.TestCase):
