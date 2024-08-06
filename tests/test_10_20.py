@@ -29,3 +29,15 @@ class Test14(unittest.TestCase):
         y = add(add(x,x), x)
         y.backward()
         self.assertEqual(x.grad, 3.0)
+        
+
+class Test15(unittest.TestCase):
+    def test_topology(self):
+        x = Variable(np.array(2.0))
+        a = square(x)
+        b = exp(a)
+        c = exp(a)
+        y = add(b, c)
+        
+        y.backward()
+        
