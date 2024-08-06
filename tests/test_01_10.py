@@ -14,7 +14,7 @@ class SquareTest(unittest.TestCase):
         x = Variable(np.array(3.0))
         y = square(x)
         y.backward()
-        expected = np.array(6.0)
+        expected = 6.0
         self.assertEqual(x.grad, expected)
         
     def test_gradient(self):

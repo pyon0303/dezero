@@ -35,9 +35,16 @@ class Test15(unittest.TestCase):
     def test_topology(self):
         x = Variable(np.array(2.0))
         a = square(x)
-        b = exp(a)
-        c = exp(a)
-        y = add(b, c)
+        y = add(square(a), square(a))
         
         y.backward()
+        self.assertEqual(x.grad, 64.0)
+    
+    def test_my_sqrt(self):
+        prev = 9
+        while True:
+            next = ((prev * prev) + 9) / (2*prev)
+            if prev - next < 1e-09:
+                return next
+            prev = next
         
