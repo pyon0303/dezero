@@ -1,7 +1,7 @@
 import unittest
-import sys, os
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from dezero.core import *
+import numpy as np
+from dezero import *
+from dezero.core_simple import square, numerical_diff
 
 class SquareTest(unittest.TestCase):
     def test_forward(self):

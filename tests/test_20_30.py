@@ -1,6 +1,6 @@
 import numpy as np
 import unittest
-from dezero.core import *
+from dezero import Variable
 
 class Test20(unittest.TestCase):
     def test_overload_1(self):

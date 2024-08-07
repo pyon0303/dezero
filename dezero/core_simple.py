@@ -17,6 +17,18 @@ def using_config(name, value):
 def no_grad():
     return using_config('enable_backprop', False)
 
+def setup_variable():
+    Variable.__add__ = add
+    Variable.__radd__ = add
+    Variable.__sub__ = sub
+    Variable.__rsub__ = rsub
+    Variable.__mul__ = mul
+    Variable.__rmul__ = mul
+    Variable.__truediv__ = div
+    Variable.__rtruediv__ = rdiv
+    Variable.__pow__ = pow
+    Variable.__neg__ = neg
+
 class Variable:
     
     __array_priority__ = 200
@@ -31,43 +43,6 @@ class Variable:
         self.creator = None
         self.generation = 0
         
-    def __add__(self, other):
-        other = as_array(other)
-        return add(self, other)
-    
-    def __radd__(self, other):
-        other = as_array(other)
-        return add(self, other)
-    
-    def __mul__(self, other):
-        other = as_array(other)
-        return mul(self, other)
-    
-    def __rmul__(self, other):
-        other = as_array(other)
-        return mul(self, other)
-    
-    def __neg__(self):
-        return neg(self)
-    
-    def __sub__(self, other):
-        other = as_array(other)
-        return sub(self, other)
-    
-    def __rsub__(self, other):
-        other = as_array(other)
-        return sub(other, self)
-    
-    def __truediv__(self, other):
-        other = as_array(other)
-        return div(self, other)
-    
-    def __rtruediv__(self, other):
-        other = as_array(other)
-        return div(other, self)
-    
-    def __pow__(self, c):
-        return pow(self, c)
         
     @property
     def shape(self):
@@ -271,19 +246,31 @@ def exp(x):
     return Exp()(x)
 
 def add(x, y):
+    y = as_array(y)
     return Add()(x, y)
 
 def mul(x, y):
+    y = as_array(y)
     return Mul()(x, y)
 
 def neg(x):
     return Neg()(x)
 
 def sub(x, y):
+    y = as_array(y)
     return Sub()(x, y)
 
+def rsub(x, y):
+    y = as_array(y)
+    return Sub()(y, x)
+
 def div(x, y):
+    y  = as_array(y)
     return Div()(x, y)
+
+def rdiv(x, y):
+    y = as_array(y)
+    return Div()(y, x)
 
 def pow(x, c):
     return Pow(c)(x)

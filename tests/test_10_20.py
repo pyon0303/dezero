@@ -1,8 +1,6 @@
 import unittest
-import sys, os
-#sys.path.append(os.path.pardir)
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from dezero.core import *  
+from dezero import *
+from dezero.core_simple import square, add, Config
 import numpy as np
 from numpy.testing import assert_array_equal
 
@@ -33,6 +31,14 @@ class Test14(unittest.TestCase):
         
 
 class Test15(unittest.TestCase):
+    def test_check_switch_config(self):
+        with no_grad():
+            x = Variable(np.array(5.0))
+            y = square(x)
+            self.assertEqual(Config.enable_backprop, False)
+            
+        self.assertEqual(Config.enable_backprop, True)
+    
     def test_topology(self):
         x = Variable(np.array(2.0))
         a = square(x)
@@ -71,14 +77,6 @@ class Test15(unittest.TestCase):
         with self.assertRaises(AttributeError):
             x2.backward()
             
-    
-    def test_check_switch_config(self):
-        with no_grad():
-            x = Variable(np.array(5.0))
-            y = square(x)
-            self.assertEqual(Config.enable_backprop, False)
-            
-        self.assertEqual(Config.enable_backprop, True)
         
 
 class Test19(unittest.TestCase):
