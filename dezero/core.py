@@ -15,19 +15,58 @@ def using_config(name, value):
         setattr(Config, name, old_value)
 
 def no_grad():
-    return using_config('enable_backprop', False)        
+    return using_config('enable_backprop', False)
 
 class Variable:
-    def __init__(self, data):
+    def __init__(self, data, name=None):
         if data is not None:
             if not isinstance(data, np.ndarray):
                 raise TypeError('{} is not supported'.format(type(data)))
             
         self.data = data
+        self.name = name
         self.grad = None
         self.creator = None
         self.generation = 0
+        
+    def __add__(self, other):
+        return add(self, other)
     
+    def __mul__(self, other):
+        return mul(self, other)
+        
+    @property
+    def shape(self):
+        return self.data.shape
+
+    @property
+    def ndim(self):
+        return self.data.ndim
+    
+    @property
+    def size(self):
+        return self.data.size
+    
+    @property
+    def dtype(self):
+        return self.data.dtype
+    
+    @property
+    def T(self):
+       return self.data.T
+   
+    def __len__(self) -> int:
+        """
+        returns the number of rows
+        """
+        return len(self.data)
+    
+    def __repr__(self) -> str:
+        if self.data is None:
+            return 'variable(None)'
+        p = str(self.data).replace('\n', '\n' + ' '*9)#len('variable(') == 9
+        return 'variable(' + p + ')'
+   
     def set_creator(self, func):
         self.creator = func
         self.generation = func.generation + 1
@@ -66,7 +105,8 @@ class Variable:
                 
                 if not retain_flag:
                     for y in f.outputs:
-                        y().grad = None #y == weakref         
+                        y().grad = None #y == weakref
+
                       
 class Function:
     def __call__(self, *inputs):
@@ -129,6 +169,15 @@ class Add(Function):
     def backward(self, gy):
         return gy, gy 
     
+class Mul(Function):
+    def forward(self, x0, x1):
+        y = x0 * x1
+        return (y,)
+
+    def backward(self, gy):
+        x0, x1 = self.inputs[0].data, self.inputs[1].data
+        return gy * x1, gy * x0
+    
 #for gradient checking
 def numerical_diff(f, x, eps=1e-4):
     x0 = Variable(x.data - eps)
@@ -137,7 +186,6 @@ def numerical_diff(f, x, eps=1e-4):
     y1 = f(x1)
     
     return (y1.data - y0.data) / (2 * eps)
-
 
 def square(x):
     #callable
@@ -149,3 +197,5 @@ def exp(x):
 def add(x, y):
     return Add()(x, y)
 
+def mul(x, y):
+    return Mul()(x, y)

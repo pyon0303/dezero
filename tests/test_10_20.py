@@ -4,6 +4,7 @@ import sys, os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from dezero.core import *  
 import numpy as np
+from numpy.testing import assert_array_equal
 
 class Test13(unittest.TestCase):
     def test_addgrad(self):
@@ -78,4 +79,18 @@ class Test15(unittest.TestCase):
             self.assertEqual(Config.enable_backprop, False)
             
         self.assertEqual(Config.enable_backprop, True)
+        
+
+class Test19(unittest.TestCase):
+    def test_properties(self):
+        x = Variable(np.array([[1,2,3],[4,5,6]]))
+        self.assertEqual(x.ndim, 2)
+        self.assertEqual(x.shape, (2, 3))
+        self.assertEqual(x.dtype, np.int64)
+        self.assertEqual(x.size, 6)
+        assert_array_equal(x.T, np.array([[1,4],[2,5],[3,6]]))
+        self.assertEqual(len(x), 2)
+        print(x)
+
+     
         
