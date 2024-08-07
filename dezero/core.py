@@ -1,5 +1,21 @@
 import numpy as np
 import weakref
+import contextlib
+
+class Config:
+    enable_backprop = True
+    
+@contextlib.contextmanager
+def using_config(name, value):
+    old_value = getattr(Config, name)
+    setattr(Config, name, value)
+    try:
+        yield
+    finally:
+        setattr(Config, name, old_value)
+
+def no_grad():
+    return using_config('enable_backprop', False)        
 
 class Variable:
     def __init__(self, data):
@@ -19,7 +35,7 @@ class Variable:
     def clear_grad(self):
         self.grad = None  
       
-    def backward(self):
+    def backward(self, retain_flag=False):
         if self.grad is None:
             self.grad = np.ones_like(self.data)
             
@@ -46,7 +62,11 @@ class Variable:
                     x.grad = x.grad + gx
                 
                 if x.creator is not None:
-                    add_func(x.creator)          
+                    add_func(x.creator)
+                
+                if not retain_flag:
+                    for y in f.outputs:
+                        y().grad = None #y == weakref         
                       
 class Function:
     def __call__(self, *inputs):
@@ -56,11 +76,13 @@ class Function:
             ys = (ys,)
         outputs = [Variable(self.as_array(y)) for y in ys]
         
-        self.generation = max([input.generation for input in inputs])
-        for outout in outputs:
-            outout.set_creator(self)
-        self.inputs = inputs
-        self.outputs = [weakref.ref(output) for output in outputs]
+        if Config.enable_backprop:
+            self.generation = max([input.generation for input in inputs])
+            for outout in outputs:
+                outout.set_creator(self)
+            self.inputs = inputs
+            self.outputs = [weakref.ref(output) for output in outputs]
+            
         return outputs if len(outputs) > 1 else outputs[0]
     
     def forward(self, x):
@@ -127,8 +149,3 @@ def exp(x):
 def add(x, y):
     return Add()(x, y)
 
-x0 = Variable(np.array(2.0))
-x1 = Variable(np.array(3.0))
-f = Add()
-ys = f(x0, x1)
-print(ys.data)

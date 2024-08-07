@@ -47,4 +47,35 @@ class Test15(unittest.TestCase):
             if prev - next < 1e-09:
                 return next
             prev = next
+            
+    
+    def test_weak_ref(self):
+        x0 = Variable(np.array(5.0))
+        x1 = Variable(np.array(5.0))
+        t = add(x0, x1)
+        y = add(x0, t)
+        y.backward()
+        
+        self.assertIsNone(y.grad)
+        self.assertIsNone(t.grad)
+        self.assertIsNotNone(x1.grad)
+        self.assertIsNotNone(x0.grad)
+        
+    
+    def test_enable_backprop_false(self):
+        Config.enable_backprop = False
+        x0 = Variable(np.array(5.0))
+        x1 = Variable(np.array(10.0))
+        x2 = add(x0, x1)
+        with self.assertRaises(AttributeError):
+            x2.backward()
+            
+    
+    def test_check_switch_config(self):
+        with no_grad():
+            x = Variable(np.array(5.0))
+            y = square(x)
+            self.assertEqual(Config.enable_backprop, False)
+            
+        self.assertEqual(Config.enable_backprop, True)
         
