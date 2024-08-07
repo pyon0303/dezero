@@ -46,6 +46,28 @@ class Variable:
     def __rmul__(self, other):
         other = as_array(other)
         return mul(self, other)
+    
+    def __neg__(self):
+        return neg(self)
+    
+    def __sub__(self, other):
+        other = as_array(other)
+        return sub(self, other)
+    
+    def __rsub__(self, other):
+        other = as_array(other)
+        return sub(other, self)
+    
+    def __truediv__(self, other):
+        other = as_array(other)
+        return div(self, other)
+    
+    def __rtruediv__(self, other):
+        other = as_array(other)
+        return div(other, self)
+    
+    def __pow__(self, c):
+        return pow(self, c)
         
     @property
     def shape(self):
@@ -186,6 +208,42 @@ class Mul(Function):
         x0, x1 = self.inputs[0].data, self.inputs[1].data
         return gy * x1, gy * x0
     
+class Neg(Function):
+    def forward(self, x):
+        return -x
+    
+    def backward(self, gy):
+        return -gy
+    
+class Sub(Function):
+    def forward(self, x0, x1):
+        y = x0 - x1
+        return (y,)
+    
+    def backward(self, gy):
+        return gy, -gy
+    
+class Div(Function):
+    def forward(self, x0, x1):
+        y = x0 / x1
+        return (y, )
+    
+    def backward(self, gy):
+        x0, x1 = self.inputs[0].data, self.inputs[1].data
+        gx0 = gy / x1
+        gx1 = gy * (-x0 / x1 ** 2)
+        return gx0, gx1
+    
+class Pow(Function):
+    def __init__(self, c):
+        self.c = c
+        
+    def forward(self, x):
+        return x ** self.c
+    
+    def backward(self, gy):
+        return self.c * self.inputs[0].data ** (self.c - 1) * gy
+    
 #for gradient checking
 def numerical_diff(f, x, eps=1e-4):
     x0 = Variable(x.data - eps)
@@ -217,3 +275,15 @@ def add(x, y):
 
 def mul(x, y):
     return Mul()(x, y)
+
+def neg(x):
+    return Neg()(x)
+
+def sub(x, y):
+    return Sub()(x, y)
+
+def div(x, y):
+    return Div()(x, y)
+
+def pow(x, c):
+    return Pow(c)(x)
