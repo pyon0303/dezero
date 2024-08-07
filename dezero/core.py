@@ -18,6 +18,8 @@ def no_grad():
     return using_config('enable_backprop', False)
 
 class Variable:
+    
+    __array_priority__ = 200
     def __init__(self, data, name=None):
         if data is not None:
             if not isinstance(data, np.ndarray):
@@ -30,9 +32,19 @@ class Variable:
         self.generation = 0
         
     def __add__(self, other):
+        other = as_array(other)
+        return add(self, other)
+    
+    def __radd__(self, other):
+        other = as_array(other)
         return add(self, other)
     
     def __mul__(self, other):
+        other = as_array(other)
+        return mul(self, other)
+    
+    def __rmul__(self, other):
+        other = as_array(other)
         return mul(self, other)
         
     @property
@@ -110,11 +122,12 @@ class Variable:
                       
 class Function:
     def __call__(self, *inputs):
+        inputs = [as_variable(x) for x in inputs]
         xs = [x.data for x in inputs]    
         ys = self.forward(*xs)
         if not isinstance(ys, tuple):
             ys = (ys,)
-        outputs = [Variable(self.as_array(y)) for y in ys]
+        outputs = [Variable(as_array(y)) for y in ys]
         
         if Config.enable_backprop:
             self.generation = max([input.generation for input in inputs])
@@ -133,11 +146,6 @@ class Function:
     
     def __str___(self):
         return type(self).__name__
-    
-    def as_array(self, x):
-        if np.isscalar(x):
-            return np.array(x)
-        return x
     
 
 class Square(Function):
@@ -186,6 +194,16 @@ def numerical_diff(f, x, eps=1e-4):
     y1 = f(x1)
     
     return (y1.data - y0.data) / (2 * eps)
+
+def as_array(obj):
+    if np.isscalar(obj):
+        return np.array(obj)
+    return obj
+
+def as_variable(obj):
+    if isinstance(obj, Variable):
+        return obj
+    return Variable(obj)
 
 def square(x):
     #callable
