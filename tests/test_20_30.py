@@ -1,6 +1,14 @@
 import numpy as np
 import unittest
+import matplotlib.pyplot as plt
+
+if '__file__' in globals():
+    import os, sys
+    sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+    
 from dezero import Variable
+from dezero import utils
+
 
 class Test20(unittest.TestCase):
     def test_overload_1(self):
@@ -82,3 +90,36 @@ class Test24(unittest.TestCase):
         print(x.grad, y.grad)
         self.assertAlmostEqual(x.grad, -5376.0)
         self.assertAlmostEqual(y.grad, 8064.0)
+        
+
+class Test26(unittest.TestCase):
+    def test_dot_var(self):
+        x = Variable(np.random.randn(2, 3))
+        x.name = 'x'
+        print(utils._dot_var(x))
+        print(utils._dot_var(x, verbose=True))
+        
+    def test_dot_func(self):
+        x0 = Variable(np.array(1.0))
+        x1 = Variable(np.array(1.0))
+        y = x0 + x1
+        txt = utils._dot_func(y.creator)
+        print(txt)
+        
+    def test_plot_dot_graph(self):
+        def goldstein(x, y):
+            z = (1 + (x + y + 1)**2 * (19 - 14*x + 3*x**2 - 14*y + 6*x*y + 3*y**2)) * \
+                   (30 + (2*x - 3*y)**2 * (18 - 32*x + 12*x**2 + 48*y - 36*x*y + 27*y**2))
+            return z
+            
+        x = Variable(np.array(1.0))
+        y = Variable(np.array(1.0))
+        z = goldstein(x, y)
+        z.backward()
+        
+        x.name = 'x'
+        y.name = 'y'
+        z.name = 'z'
+        utils.plot_dot_graph(z, verbose=False, to_file='goldstein.png')
+
+
