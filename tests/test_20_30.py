@@ -1,11 +1,6 @@
 import numpy as np
 import unittest
 import matplotlib.pyplot as plt
-
-if '__file__' in globals():
-    import os, sys
-    sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
-    
 from dezero import Variable
 from dezero import utils
 

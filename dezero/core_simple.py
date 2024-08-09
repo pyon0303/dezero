@@ -218,6 +218,16 @@ class Pow(Function):
     
     def backward(self, gy):
         return self.c * self.inputs[0].data ** (self.c - 1) * gy
+
+class Sin(Function):
+    def forward(self, x):
+        y = np.sin(x)
+        return y
+    
+    def backward(self, gy):
+        x = self.inputs[0].data
+        gx = gy * -np.cos(x)
+        return gx
     
 #for gradient checking
 def numerical_diff(f, x, eps=1e-4):
@@ -274,3 +284,6 @@ def rdiv(x, y):
 
 def pow(x, c):
     return Pow(c)(x)
+
+def sin(x):
+    return Sin()(x)
