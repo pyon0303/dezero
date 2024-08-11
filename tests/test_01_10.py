@@ -1,6 +1,6 @@
 import unittest
 import numpy as np
-from dezero import *
+from dezero import Variable
 from dezero.core_simple import square, numerical_diff
 
 class SquareTest(unittest.TestCase):

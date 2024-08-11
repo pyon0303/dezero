@@ -1,5 +1,5 @@
 import unittest
-from dezero import *
+from dezero import Variable
 from dezero.core_simple import square, add, Config
 import numpy as np
 from numpy.testing import assert_array_equal
