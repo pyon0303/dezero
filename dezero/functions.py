@@ -28,7 +28,7 @@ class Tanh(Function):
     
     def backward(self, gy):
         y = self.outputs[0]()
-        gx = gy * (1 - y ** 2)
+        gx = gy * (1 - y * y)
         return gx
     
 def sin(x):

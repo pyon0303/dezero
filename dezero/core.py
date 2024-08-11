@@ -163,7 +163,7 @@ class Exp(Function):
         return np.exp(x)
     
     def backward(self, gy):
-        x = self.inputs[0].data
+        x, = self.inputs
         gx = np.exp(x) * gy
         return gx
     

@@ -53,11 +53,7 @@ class Test31(unittest.TestCase):
         for i in range(iters):
             gx = x.grad
             x.clear_grad()
-            if isinstance(gx, Variable):
-                print(type(gx))
-                gx.backward(create_gragh=True)
-            else:
-                raise TypeError(f"gx type == {type(gx)}")
+            gx.backward(create_graph=True)
         
         gx = x.grad
         gx.name = 'gx' + str(iters+1)
