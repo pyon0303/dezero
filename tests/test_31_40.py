@@ -2,15 +2,43 @@ import numpy as np
 import unittest
 import matplotlib.pyplot as plt
 from dezero import Variable
-from dezero.core_simple import sin
+import dezero.functions as F
 
 class Test31(unittest.TestCase):
     def test_sin(self):
         x = Variable(np.array(np.pi/2))
         y = sin(x)
         self.assertEqual(y.data, 1.0)
+        y.backward(create_graph=True)
+        gx = x.grad
+        gx.backward(create_graph=True)
+        self.assertAlmostEqual(x.grad.data, 1.0)
         
-        y.backward(retain_flag=True)
-        self.assertEqual(y.grad, 1.0)
-        self.assertAlmostEqual(x.grad, 0.0)
         
+    def test_2nd_differentation(self):
+        def f(x):
+            y = x ** 4 - 2 * x ** 2
+            return y
+        
+        x = Variable(np.array(2.0))
+        y = f(x)
+        y.backward(create_graph=True)
+        self.assertEqual(x.grad.data, 24.0)
+        
+        gx = x.grad
+        x.clear_grad()
+        gx.backward()
+        self.assertEqual(x.grad.data, 44.0)
+        
+    def test_nth_differential_sin(self):
+        x = Variable(np.linspace(-7,7,200))
+        y = F.sin(x)
+        y.backward(create_graph=True)
+        
+        for i in range(3):
+            gx = x.grad
+            x.clear_grad()
+            gx.backward(create_graph=True)
+            print(x.grad)
+        
+                
