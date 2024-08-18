@@ -1,6 +1,7 @@
 import numpy as np
 import weakref
 import contextlib
+import dezero
 
 class Config:
     enable_backprop = True
@@ -62,7 +63,7 @@ class Variable:
     
     @property
     def T(self):
-       return self.data.T
+       return dezero.functions.transpose(self)
    
     def __len__(self) -> int:
         """
@@ -81,7 +82,16 @@ class Variable:
         self.generation = func.generation + 1
     
     def clear_grad(self):
-        self.grad = None  
+        self.grad = None
+    
+    def reshape(self, *shape):
+        if len(shape) == 1 and isinstance(shape[0], (tuple, list)):
+            shape = shape[0]
+        return dezero.functions.reshape(self, shape)
+    
+    def transpose(self):
+        return dezero.functions.transpose(self)
+    
       
     def backward(self, retain_flag=False, create_graph=False):
         if self.grad is None:

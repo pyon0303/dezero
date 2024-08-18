@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 from dezero import Variable
 import dezero.functions as F
 from dezero import utils
+from numpy.testing import assert_array_equal
 
 class Test31(unittest.TestCase):
     def test_sin(self):
@@ -58,6 +59,24 @@ class Test31(unittest.TestCase):
         gx = x.grad
         gx.name = 'gx' + str(iters+1)
         utils.plot_dot_graph(gx, verbose=False, to_file='tanh.png')
+
+
+class Test37(unittest.TestCase):
+    def test_reshpae(self):
+        x = Variable(np.array([[1,2,3], [4,5,6]]))
+        y = F.reshape(x, (6,))
+        y.backward(retain_flag=True)
+        assert_array_equal(x.grad.data, np.ones(6).reshape(2,3))
         
+    def test_reshape_from_variable(self):
+        x = Variable(np.random.randn(1,2,3))
+        y = x.reshape(2, 3)
+        y = x.reshape((2, 3))
+        
+    def test_transpose(self):
+        x = Variable(np.array([[1,2,3],[4,5,6]]))
+        y = x.transpose()
+        y.backward()
+        assert_array_equal(x.grad.data, np.ones(6).reshape(2,3))
         
                 
