@@ -79,6 +79,33 @@ class BroadcastTo(Function):
         gx = sum_to(gy, self.x_shape)
         return gx
     
+class Sum(Function):
+    def __init__(self, axis, keepdims):
+        self.axis  = axis
+        self.keepdims = keepdims
+        
+    def forward(self, x):
+        self.x_shape = x.shape
+        y = x.sum(axis=self.axis, keepdims=self.keepdims)
+        return y
+    
+    def backward(self, gy):
+        #gx = broadcast_to(gy, self.x_shape) Error case (2, ) => (2, 3)
+        gy = utils.reshape_sum_backward(gy, self.x_shape, self.axis, self.keepdims)
+        gx = broadcast_to(gy, self.x_shape)
+        return gx
+    
+class MatMul(Function):
+    def forward(self, x, W):
+        y = np.dot(x, W)
+        return y
+    
+    def backward(self, gy):
+        x, W = self.inputs
+        gx = matmul(gy, W.T)
+        gW = matmul(x.T, gy)
+        return gx, gW
+    
 def sin(x):
     return Sin()(x)
 
@@ -103,3 +130,9 @@ def broadcast_to(x, shape):
     if x.shape == shape:
         return as_variable(x)
     return BroadcastTo(shape)(x)
+
+def sum(x, axis=None, keepdims=False):
+    return Sum(axis=axis, keepdims=keepdims)(x)
+
+def matmul(x, W):
+    return MatMul()(x, W)

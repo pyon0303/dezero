@@ -95,4 +95,24 @@ class Test37(unittest.TestCase):
         y = F.broadcast_to(x, (2, 3))
         y.backward()
         assert_array_equal(x.grad.data, np.array([2, 2, 2]))
+        
+    def test_sum(self):        
+        x = Variable(np.array([[1, 2, 3], [4, 5, 6]]))
+        y = F.sum(x, axis=1)
+        y.backward()
+        print(x.grad)
+        
+        x2 = Variable(np.array([[1, 2, 3], [4, 5, 6]]))
+        y2 = F.sum(x2, axis=0)
+        y2.backward()
+        print(x2.grad)
+        
+    def test_matmul(self):
+        x = Variable(np.random.randn(2, 3))
+        W = Variable(np.random.randn(3, 4))
+        y = F.matmul(x, W)
+        y.backward()
+        
+        self.assertEqual(x.grad.shape, x.shape)
+        self.assertEqual(W.grad.shape, W.shape)
                 
