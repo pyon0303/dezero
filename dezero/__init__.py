@@ -1,5 +1,5 @@
 is_simple_core = False # True
-
+#enable "from dezero import Variable" not from dezero.core import Variable
 if is_simple_core:
     from dezero.core_simple import Variable
     from dezero.core_simple import Function
@@ -17,5 +17,6 @@ else:
     from dezero.core import as_array
     from dezero.core import as_variable
     from dezero.core import setup_variable
+    from dezero.core import Parameter
 
 setup_variable()

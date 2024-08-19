@@ -1,8 +1,9 @@
 import numpy as np
 import unittest
 import matplotlib.pyplot as plt
-from dezero import Variable
+from dezero import Variable, Parameter
 import dezero.functions as F
+import dezero.layers as L
 from dezero import utils
 from numpy.testing import assert_array_equal
 
@@ -147,3 +148,19 @@ class Test37(unittest.TestCase):
         y.backward()
         print(x0.grad)
         print(x1.grad)
+        
+class Test44(unittest.TestCase):
+    def test_layer(self):
+        layer = L.Layer()
+        
+        layer.p1 = Parameter(np.array(1))
+        layer.p2 = Parameter(np.array(2))
+        layer.p3 = Variable(np.array(3))
+        layer.p4 = 'test'
+        
+        print(layer._params)
+        print('-----------')
+        
+        for name in layer._params:
+            print(name, layer.__dict__[name])
+        

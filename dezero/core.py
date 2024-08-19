@@ -156,6 +156,8 @@ class Function:
     def __str___(self):
         return type(self).__name__
     
+class Parameter(Variable):
+    pass
 
 class Square(Function):
     def forward(self, x):
