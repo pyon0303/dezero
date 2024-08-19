@@ -78,5 +78,21 @@ class Test37(unittest.TestCase):
         y = x.transpose()
         y.backward()
         assert_array_equal(x.grad.data, np.ones(6).reshape(2,3))
+    
+    def test_broadcast(self):
+        x = np.array([1,2,3])
+        y = np.broadcast_to(x, (2, 3))
+        print(y)
         
+    def test_sum_to(self):
+        x = Variable(np.array([[1,2,3], [4,5,6]]))
+        y = F.sum_to(x, (2, ))
+        y.backward()
+        assert_array_equal(x.grad.data, np.array([[1,1,1],[1,1,1]]))
+    
+    def test_broadcast_to(self):
+        x = Variable(np.array([1,2,3]))
+        y = F.broadcast_to(x, (2, 3))
+        y.backward()
+        assert_array_equal(x.grad.data, np.array([2, 2, 2]))
                 
