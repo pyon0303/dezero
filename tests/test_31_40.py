@@ -115,4 +115,35 @@ class Test37(unittest.TestCase):
         
         self.assertEqual(x.grad.shape, x.shape)
         self.assertEqual(W.grad.shape, W.shape)
-                
+        
+    def test_broadcast_add(self):
+        x0 = Variable(np.array([1,2,3]))
+        x1 = Variable(np.array([10]))
+        y = x0 + x1
+        y.backward()
+        print(x0.grad)
+        print(x1.grad)
+        
+    def test_broadcast_sub(self):
+        x0 = Variable(np.array([1,2,3]))
+        x1 = Variable(np.array([-10]))
+        y = x0 - x1
+        y.backward()
+        print(x0.grad)
+        print(x1.grad)
+        
+    def test_broadcast_mul(self):
+        x0 = Variable(np.array([1,2,3]))
+        x1 = Variable(np.array([10]))
+        y = x0 * x1
+        y.backward()
+        print(x0.grad)
+        print(x1.grad)
+        
+    def test_broadcast_div(self):
+        x0 = Variable(np.array([2,4,6]))
+        x1 = Variable(np.array([2]))
+        y = x0 / x1
+        y.backward()
+        print(x0.grad)
+        print(x1.grad)
