@@ -106,6 +106,30 @@ class MatMul(Function):
         gW = matmul(x.T, gy)
         return gx, gW
     
+class Linear(Function):
+    def forward(self, x, W, b):
+        y = np.dot(x, W)
+        if b is not None:
+            y += b
+        return y
+    
+    def backward(self, gy):
+        x, W, b = self.inputs
+        gb = None if b.data is None else sum_to(gy, b.shape)
+        gx = matmul(gy, W.T)
+        gW = matmul(x.T, gy)
+        return gx, gW, gb
+    
+class Sigmoid(Function):
+    def forward(self, x):
+        y = np.tanh(x * 0.5) * 0.5 + 0.5 # why is this better than normal??
+        return y
+    
+    def backward(self, gy):
+        y = self.outputs[0]() #weakref
+        gx = gy * y * (1 - y)
+        return gx
+    
 def sin(x):
     return Sin()(x)
 
@@ -136,3 +160,9 @@ def sum(x, axis=None, keepdims=False):
 
 def matmul(x, W):
     return MatMul()(x, W)
+
+def linear(x, W, b):
+    return Linear()(x, W, b)
+
+def sigmoid(x):
+    return Sigmoid()(x)
