@@ -163,4 +163,37 @@ class Test44(unittest.TestCase):
         
         for name in layer._params:
             print(name, layer.__dict__[name])
+    
+            
+    def test_linear(self):
         
+        np.random.seed(0)
+        x = np.random.rand(100, 1)
+        y = np.sin(2 * np.pi * x) + np.random.rand(100, 1)
+        
+        l1 = L.Linear(10)
+        l2 = L.Linear(1)
+        
+        def predict(x):
+            y = l1(x)
+            y = F.sigmoid(y)
+            y2 = l2(y)
+            return y2
+        
+        lr = 0.2
+        iters = 10000
+        
+        for i in range(iters):
+            y_pred = predict(x)
+            loss = F.mean_squared_error(y_pred, y)
+
+            l1.cleargrads()
+            l2.cleargrads()
+            loss.backward()
+            
+            for l in [l1, l2]:
+                for p in l.params():
+                    p.data -= lr * p.grad.data
+            
+            if i % 1000 == 0:
+                print(loss)
