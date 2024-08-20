@@ -1,6 +1,8 @@
 from typing import Any
 from dezero.core import Parameter
 import weakref
+import numpy as np
+import dezero.functions as F
 
 class Layer:
     def __init__(self):
@@ -29,3 +31,19 @@ class Layer:
     def cleargrads(self):
         for param in self.params():
             param.clear_grad()
+            
+class Linear(Layer):
+    def __init__(self, in_size, out_size, nobias=False, dtype=np.float32):
+        super().__init__()
+        
+        I, O = in_size, out_size
+        W_data = np.random.randn(I, O).astype(dtype) * np.sqrt(1 / I)
+        self.W = Parameter(W_data, name='W')
+        if nobias:
+            self.b = None
+        else:
+            self.b = Parameter(np.zeros(0, dtype=dtype), name='b')
+        
+    def forward(self, x):
+        y = F.linear(x, self.W, self.b)
+        return y
