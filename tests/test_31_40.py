@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 from dezero import Variable, Parameter
 import dezero.functions as F
 import dezero.layers as L
+from dezero.models import TwoLayerNet, MLP
 from dezero import utils
 from numpy.testing import assert_array_equal
 
@@ -197,3 +198,71 @@ class Test44(unittest.TestCase):
             
             if i % 1000 == 0:
                 print(loss)
+                
+    def test_Layer_composition(self):
+        x = np.random.randn(100, 1)
+        model = L.Layer()
+        model.l1 = L.Linear(5)
+        model.l2 = L.Linear(3)
+        
+        def predict(model, x):
+            y = model.l1(x)
+            y = F.sigmoid(y)
+            y = model.l2(y)
+            return y
+        
+        for p in model.params():
+            print(p)
+            
+        model.cleargrads()
+        
+    def test_TwoLayerNet_plot(self):
+        x = Variable(np.random.randn(5, 10), name='x')
+        model = TwoLayerNet(100, 10)
+        model.plot(x)
+        
+    def test_TwoLayerNet(self):
+        lr = 0.2
+        max_iter = 10000
+        hidden_size = 10
+        
+        model = TwoLayerNet(hidden_size, 1)
+        x = np.random.rand(100, 1)
+        y = np.sin(2 * np.pi * x) + np.random.rand(100, 1)
+        
+        for i in range(max_iter):
+            y_pred = model(x)
+            loss = F.mean_squared_error(y_pred, y)
+            
+            model.cleargrads()
+            loss.backward()
+            
+            for p in model.params():
+                p.data -= lr * p.grad.data
+            
+            if i % 1000 == 0:
+                print(loss)
+                
+    def test_MLP(self):
+        lr = 0.2
+        max_iter = 100000
+        hidden_size = 10
+        
+        x = np.random.rand(100, 1)
+        y = np.sin(2 * np.pi * x) + np.random.rand(100, 1)
+        model = MLP((10,20,30,40, 1))
+        
+        for i in range(max_iter):
+            y_pred = model(x)
+            loss = F.mean_squared_error(y_pred, y)
+            
+            model.cleargrads()
+            loss.backward()
+            
+            for p in model.params():
+                p.data -= lr * p.grad.data
+            
+            if i % 1000 == 0:
+                print(loss)
+        
+        
