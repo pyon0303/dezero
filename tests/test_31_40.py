@@ -2,6 +2,7 @@ import numpy as np
 import unittest
 import matplotlib.pyplot as plt
 from dezero import Variable, Parameter
+from dezero import optimizers
 import dezero.functions as F
 import dezero.layers as L
 from dezero.models import TwoLayerNet, MLP
@@ -264,5 +265,30 @@ class Test44(unittest.TestCase):
             
             if i % 1000 == 0:
                 print(loss)
+                
+    def test_SGD(self):
+        np.random.seed(0) 
+        x = np.random.rand(100, 1)
+        y = np.sin(2 * np.pi * x) + np.random.rand(100, 1)
         
+        lr = 0.2
+        max_iter = 20000
+        hidden_size = 10
+        
+        model = MLP((hidden_size, 1))
+        optimizer = optimizers.SGD(lr)
+        optimizer.setup(model)
+        
+        for i in range(max_iter):
+            y_pred = model(x)
+            loss = F.mean_squared_error(y, y_pred)
+            
+            model.cleargrads()
+            loss.backward()
+            
+            optimizer.update()
+            
+            if i % 1000 == 0:
+                print(loss)
+            
         
