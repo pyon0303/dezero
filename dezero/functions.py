@@ -143,6 +143,32 @@ class MeanSquaredError(Function):
         gx1 = -gx0
         return gx0, gx1
     
+class GetItem(Function):
+    def __init__(self, slices):
+        self.slices = slices
+    
+    def forward(self, x):
+        y = x[self.slices]
+        return y
+    
+    def backward(self, gy):
+        x, = self.inputs
+        f = GetItemGrad(self.slices, x.shape)
+        return f(gy)
+    
+class GetItemGrad(Function):
+    def __init__(self, slices, in_shape):
+        self.slices = slices
+        self.in_shape = in_shape
+    
+    def forward(self, gy):
+        gx = np.zeros(self.in_shape)
+        np.add.at(gx, self.slices, gy)
+        return gx
+    
+    def backward(self, ggx):
+        return get_item(ggx, self.slices)
+    
 def sin(x):
     return Sin()(x)
 
@@ -182,3 +208,6 @@ def sigmoid(x):
 
 def mean_squared_error(x0, x1):
     return MeanSquaredError()(x0, x1)
+
+def get_item(x, slices):
+    return GetItem(slices)(x)

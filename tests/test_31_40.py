@@ -290,5 +290,29 @@ class Test44(unittest.TestCase):
             
             if i % 1000 == 0:
                 print(loss)
-            
+                
+    def test_np_add_at(self):
+        a = np.zeros((2, 3))
+        print(a)
+        b = np.ones((3,))
+        print(b)
+        slices = 1
+        np.add.at(a, slices, b) #a[indices] += b
+        print(a)
+        print(a[1][0:2])
+    
+    def test_get_item(self):
+        a1 = Variable(np.array([[1, 2, 3],[4, 5, 6]]))
+        b = F.get_item(a1, 1)
+        b.backward()
+        print(a1.grad)
         
+        a2 = Variable(np.array(([1, 2, 3],[4, 5, 6])))
+        indices = np.array([0, 0, 1])
+        y = F.get_item(a2, indices)
+        print(y)
+        
+        a3 = Variable(np.array(([1, 2, 3],[4, 5, 6])))
+        b3 = a3[:, 2]
+        b3.backward()
+        print(a3.grad)

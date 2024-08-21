@@ -29,6 +29,7 @@ def setup_variable():
     Variable.__rtruediv__ = rdiv
     Variable.__pow__ = pow
     Variable.__neg__ = neg
+    Variable.__getitem__ = dezero.functions.get_item
 
 class Variable:
     
