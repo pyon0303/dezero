@@ -169,6 +169,32 @@ class GetItemGrad(Function):
     def backward(self, ggx):
         return get_item(ggx, self.slices)
     
+class Exp(Function):
+    def forward(self, x):
+        return np.exp(x)
+    
+    def backward(self, gy):
+        x, = self.inputs
+        gx = np.exp(x) * gy
+        return gx
+    
+class Softmax(Function):
+    def __init__(self, axis=1):
+        self.axis = axis
+    
+    def forward(self, x):
+        y = x - x.max(axis=self.axis, keepdims=True)
+        y = np.exp(y)
+        y /= y.sum(axis=self.axis, keepdims=True)
+        return y
+    
+    def backward(self, gy):
+        y = self.outputs[0]()
+        gx = y * gy
+        sumdx = gx.sum(axis=self.axis, keepdims=True)
+        gx -= y * sumdx
+        return gx
+    
 def sin(x):
     return Sin()(x)
 
@@ -211,3 +237,9 @@ def mean_squared_error(x0, x1):
 
 def get_item(x, slices):
     return GetItem(slices)(x)
+
+def exp(x):
+    return Exp()(x)
+
+def softmax(x, axis=1):
+    return Softmax(axis=axis)(x)

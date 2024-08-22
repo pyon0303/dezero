@@ -1,12 +1,9 @@
 import numpy as np
 import unittest
-import matplotlib.pyplot as plt
-from dezero import Variable, Parameter
-from dezero import optimizers
 import dezero.functions as F
 import dezero.layers as L
+from dezero import Variable, Parameter, optimizers, as_variable, utils
 from dezero.models import TwoLayerNet, MLP
-from dezero import utils
 from numpy.testing import assert_array_equal
 
 class Test31(unittest.TestCase):
@@ -316,3 +313,12 @@ class Test44(unittest.TestCase):
         b3 = a3[:, 2]
         b3.backward()
         print(a3.grad)
+        
+    def test_soft_max(self):
+        x = Variable(np.array([[0.2, -0.4]]))
+        model = MLP((10, 3))
+        y = model(x)
+        p = F.softmax(y)
+        print(y)
+        print(p)
+        

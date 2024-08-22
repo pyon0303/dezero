@@ -66,6 +66,9 @@ class Variable:
     def T(self):
        return dezero.functions.transpose(self)
    
+    def sum(self, axis=None, keepdims=False):
+        return dezero.functions.sum(self, axis, keepdims)
+   
     def __len__(self) -> int:
         """
         returns the number of rows
@@ -168,18 +171,7 @@ class Square(Function):
     def backward(self, gy):
         x = self.inputs
         gx = 2 * x * gy
-        return gx
-    
-    
-class Exp(Function):
-    def forward(self, x):
-        return np.exp(x)
-    
-    def backward(self, gy):
-        x, = self.inputs
-        gx = np.exp(x) * gy
-        return gx
-    
+        return gx    
 
 class Add(Function):
     def forward(self, x0, x1):
@@ -279,9 +271,6 @@ def as_variable(obj):
 def square(x):
     #callable
     return Square()(x)
-
-def exp(x):
-    return Exp()(x)
 
 def add(x, y):
     y = as_array(y)
