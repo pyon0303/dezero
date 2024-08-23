@@ -1,8 +1,10 @@
 import numpy as np
 import unittest
+import dezero
+import dezero.datasets
 import dezero.functions as F
 import dezero.layers as L
-from dezero import Variable, Parameter, optimizers, as_variable, utils
+from dezero import Variable, Parameter, optimizers, utils
 from dezero.models import TwoLayerNet, MLP
 from numpy.testing import assert_array_equal
 
@@ -328,4 +330,7 @@ class Test44(unittest.TestCase):
         model = MLP((10, 3))
         y = model(x)
         loss = F.softmax_cross_entropy_simple(y, t)
-        print(loss)        
+        print(loss)
+        
+
+        

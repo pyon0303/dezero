@@ -1,0 +1,57 @@
+import numpy as np
+
+class Dataset:
+    def __init__(self, train=True, transform=False, target_transform=None):
+        self.train = train
+        self.tarnsform = transform
+        self.target_transform = target_transform
+        if self.tarnsform is None:
+            self.tranform = lambda x: x
+        if self.target_transform is None:
+            self.target_transform = lambda x: x
+
+        self.data = None
+        self.label = None
+        self.prepare()
+            
+    def prepare(self):
+        pass
+    
+    def __len__(self):
+        return len(self.data)
+    
+    def __getitem__(self, index):
+        assert np.isscalar(index)
+        if self.label is None:
+            return self.tranform(self.data[index]), None
+        else:
+            return self.tranform(self.data[index]), self.target_transform(self.label(index))
+
+# =========================================================================================
+# Toy datasets
+# =========================================================================================
+
+def get_spiral(train=True):
+    seed = 1984 if train else 2020
+    np.random.seed(seed)
+    
+    num_data, num_class, input_dim = 100, 3, 2
+    data_size = num_class * num_data
+    x = np.zeros((data_size, input_dim), dtype=np.float32)
+    t = np.zeros(data_size, dtype=int)
+    
+    for j in range(num_class):
+        for i in range(num_data):
+            rate = i / num_data
+            radius = 1.0 * rate
+            theta = j * 4.0 + 4.0 * rate + np.random.randn() * 0.2
+            ix = num_data * j + i
+            x[ix] = np.array([radius * np.sin(theta), radius * np.cos(theta)]).flatten()
+            t[ix] = j
+    
+    #shuffle    
+    indices = np.random.permutation(num_data * num_class)
+    x = x[indices]
+    t = t[indices]
+    return x, t
+    
