@@ -202,7 +202,7 @@ class Log(Function):
     
     def backward(self, gy):
         x, = self.inputs
-        gx = gy *  x
+        gx = gy / x
         return gx
     
 class Clip(Function):
