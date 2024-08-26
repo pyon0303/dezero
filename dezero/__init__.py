@@ -20,5 +20,6 @@ else:
     from dezero.core import Parameter
     from dezero.layers import Layer
     from dezero.models import Model
+    from dezero.dataloaders import DataLoader
 
 setup_variable()
