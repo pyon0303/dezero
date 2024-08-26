@@ -332,5 +332,52 @@ class Test44(unittest.TestCase):
         loss = F.softmax_cross_entropy_simple(y, t)
         print(loss)
         
+    def test_accuracy(self):
+        y = np.array([[0.2,0.8,0], [0.1,0.1,0.8],[0.5,0.1,0.4]])
+        t = np.array([1, 1, 0])
+        acc = F.accuracy(y, t)
+        self.assertAlmostEqual(acc.data, 0.6666, delta=1e-4)
+        
+    def test_spiral_with_dataloader(self):
+        max_epoch = 300
+        batch_size = 30
+        hidden_size = 10
+        lr = 1.0
+        
+        train_set = dezero.datasets.Spiral(train=True)
+        test_set = dezero.datasets.Spiral(train=False)
+        train_loader = dezero.DataLoader(train_set, batch_size, shuffle=True)
+        test_loader = dezero.DataLoader(test_set, batch_size)
+        
+        model = MLP((hidden_size, 3))
+        optimizer = optimizers.SGD(lr).setup(model)
+        
+        for epoch in range(max_epoch):
+            sum_loss, sum_acc= 0, 0
+            
+            for x, t in train_loader:
+                y = model(x)
+                loss = F.softmax_cross_entropy_simple(y, t)
+                acc = F.accuracy(y, t)
+                model.cleargrads()
+                loss.backward()
+                optimizer.update()
+                
+                sum_loss += float(loss.data) * len(t)
+                sum_acc += float(acc.data) * len(t)
 
+            #train acc 0.9633
+            print('epoch: {}'.format(epoch+1))
+            print('train loss: {:.4f}, accuracy: {:.4f}'.format(sum_loss/len(train_set), sum_acc/len(train_set)))
+            
+            sum_loss, sum_acc = 0, 0
+            with dezero.no_grad():
+                for x, t in test_loader:
+                    y = model(x)
+                    loss = F.softmax_cross_entropy_simple(y, t)
+                    acc = F.accuracy(y, t)
+                    sum_loss += float(loss.data) * len(t)
+                    sum_acc += float(acc.data) * len(t)
+            #test acc 0.9433    
+            print('test loss: {:.4f}, accuracy: {:.4f}'.format(sum_loss/len(test_set), sum_acc/len(test_set)))
         
