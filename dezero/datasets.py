@@ -3,10 +3,10 @@ import numpy as np
 class Dataset:
     def __init__(self, train=True, transform=None, target_transform=None):
         self.train = train
-        self.tarnsform = transform
+        self.transform = transform
         self.target_transform = target_transform
-        if self.tarnsform is None:
-            self.tranform = lambda x: x
+        if self.transform is None:
+            self.transform = lambda x: x
         if self.target_transform is None:
             self.target_transform = lambda x: x
 
@@ -22,14 +22,28 @@ class Dataset:
     
     def __getitem__(self, index):
         assert np.isscalar(index)
-        if self.label is None:
-            return self.tranform(self.data[index]), None
+        if self.label is None: # for non-supervisial
+            return self.transform(self.data[index]), None
         else:
-            return self.tranform(self.data[index]), self.target_transform(self.label(index))
+            return self.transform(self.data[index]), self.target_transform(self.label[index])
 
 # =========================================================================================
 # Toy datasets
 # =========================================================================================
+
+class Spiral(Dataset):
+    def prepare(self):
+        self.data, self.label = get_spiral(self.train)
+
+
+class BigData(Dataset):
+    def __getitem__(self, index):
+        x = np.load('data/{}.npy'.format(index))
+        t = np.load('label{}.npy'.format(index))
+        return x, t
+    
+    def __len__():
+        return 100000
 
 def get_spiral(train=True):
     seed = 1984 if train else 2020
@@ -54,4 +68,4 @@ def get_spiral(train=True):
     x = x[indices]
     t = t[indices]
     return x, t
-    
+
