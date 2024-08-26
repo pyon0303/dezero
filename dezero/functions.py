@@ -219,6 +219,17 @@ class Clip(Function):
         gx = gy * mask
         return gx
     
+class RELU(Function):
+    def forward(self, x):
+        y = np.maximum(x, 0)
+        return y
+    
+    def backward(self, gy):
+        x, = self.inputs
+        mask = x.data > 0
+        gx = gy * mask
+        return gx
+    
 def sin(x):
     return Sin()(x)
 
@@ -292,4 +303,7 @@ def accuracy(y, t):
     result = (pred == t.data)
     acc = result.mean()
     return Variable(as_array(acc))
+
+def relu(x):
+    return RELU()(x)
     

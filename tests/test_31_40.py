@@ -398,7 +398,7 @@ class Test44(unittest.TestCase):
         train_loader = DataLoader(train_set, batch_size)
         test_loader = DataLoader(test_set, batch_size, shuffle=False)
         
-        model = MLP((hidden_size, 10))
+        model = MLP((hidden_size, hidden_size, 10), activation=F.relu)
         optimizer = optimizers.SGD().setup(model)
         
         for epoch in range(max_epoch):
@@ -414,7 +414,7 @@ class Test44(unittest.TestCase):
                 
                 sum_loss += float(loss.data) * len(t)
                 sum_acc += float(acc.data) * len(t)
-            #0.947
+            #0.85
             print('epoch: {}'.format(epoch+1))
             print('train loss: {:.4f}, accuracy: {:.4f}'.format(sum_loss/len(train_set), sum_acc/len(train_set)))
             
@@ -427,6 +427,6 @@ class Test44(unittest.TestCase):
                     
                     sum_loss += float(loss.data) * len(t)
                     sum_acc += float(acc.data) * len(t)
-            #0.941
+            #0.86
             print('test loss: {:.4f}, accuracy: {:.4f}'.format(sum_loss/len(test_set), sum_acc/len(test_set)))
                 
