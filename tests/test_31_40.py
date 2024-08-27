@@ -429,4 +429,44 @@ class Test44(unittest.TestCase):
                     sum_acc += float(acc.data) * len(t)
             #0.86
             print('test loss: {:.4f}, accuracy: {:.4f}'.format(sum_loss/len(test_set), sum_acc/len(test_set)))
-                
+
+    def test_save_load(self):
+        x1 = np.array([1, 2, 3])
+        x2 = np.array([4, 5, 6])
+        data = {'x1': x1, 'x2': x2}
+        np.savez('test.npz', **data)
+        
+        arrays = np.load('test.npz')
+        x1 = arrays['x1']
+        x2 = arrays['x2']
+        print(x1)
+        print(x2)
+
+        #error happnes bacause weights is not created        
+        model = MLP((1000, 10))
+        filepath = 'test.npz'
+        model.save_weights(filepath)
+        
+    def test_dropout(self):
+        dropout_ratio = 0.6
+        x = np.ones(10)
+        xx = np.random.rand(10)
+        print(xx)
+        mask = xx > dropout_ratio
+        y = x * mask
+        print(y)
+        
+        scale = 1 - dropout_ratio
+        y = x * scale
+        print(y)
+        
+    def test_inverted_dropout(self):
+        x = np.ones((10, 2))
+        dropout_ratio = 0.6
+        scale = 1 - dropout_ratio
+        mask = np.random.rand(*x.shape)
+        mask = mask > dropout_ratio
+        y = x * mask / scale
+        print(y)
+        
+        
