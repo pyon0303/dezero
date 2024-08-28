@@ -4,6 +4,7 @@ import dezero
 import dezero.datasets
 import dezero.functions as F
 import dezero.layers as L
+import time
 from dezero import Variable, Parameter, optimizers, utils, DataLoader
 from dezero.models import TwoLayerNet, MLP
 from numpy.testing import assert_array_equal
@@ -468,5 +469,60 @@ class Test44(unittest.TestCase):
         mask = mask > dropout_ratio
         y = x * mask / scale
         print(y)
+    
+    def test_get_conv_size(self):
+        H, W = 4, 4
+        KH, KW = 3, 3
+        SH, SW = 1, 1
+        PH, PW = 1, 1
+        OH = utils.get_conv_outsize(H, KH, SH, PH)
+        OW = utils.get_conv_outsize(W, KW, SW, PW)
+        print(OH, OW)
         
+    def test_img2col_max(self):
+        x1 = np.arange(1, 28).reshape(1,3,3,3)
+        co1 = F.im2col(x1, kernel_size=2, stride=1, pad=0, to_matrix=True)
+        print(co1.shape)
         
+        x2 = np.arange(1, 271).reshape(10, 3, 3, 3)
+        kernel_size = (2, 2)
+        stride = (1, 1)
+        pad = (0, 0)
+        col2 = F.im2col(x2, kernel_size, stride, pad, to_matrix=True)
+        print(col2.shape)
+    
+    def test_im2col_v1(self):
+        x = np.arange(1, 17).reshape(4, 4)
+        print(x, x.shape)
+        
+        def im2col(x, FH, FW):
+            H, W = x.shape
+            OH = H - FH + 1
+            OW = W - FW + 1
+            col = np.zeros((FH*FW, OH*OW))
+            for h in range(OH):
+                for w in range(OW):
+                    test =  x[h:h+FH, w:w+FW]
+                    col[:, w+h*OW] = test.reshape(-1)
+                    
+            return col
+        
+        print(im2col(x, 2, 2))
+        
+    def test_im2col_v2(self):
+        def im2col(x, FH, FW):
+            H, W = x.shape
+            OH = H - FH + 1
+            OW = W - FW + 1
+            col = np.zeros((FH, FW, OH, OW))
+            for h in range(FH):
+                for w in range(FW):
+                    col[h,w,:,:] = x[h:h+OH, w:w+OW]
+            return col.reshape(FH*FW, OH*OW)
+        
+        x = np.arange(1, 17).reshape(4, 4)
+        print(im2col(x, 2, 2))
+    
+    
+    
+    

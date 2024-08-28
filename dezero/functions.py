@@ -319,4 +319,10 @@ def dropout(x, dropout_ratio=0.5):
 
 def relu(x):
     return RELU()(x)
+
+# ====================================================================
+# im2col
+# ====================================================================
+from dezero.functions_conv import im2col
+
     
