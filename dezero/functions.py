@@ -45,12 +45,20 @@ class Reshape(Function):
         return reshape(gy, self.x_shape)
     
 class Transpose(Function):
+    def __init__(self, axes=None):
+        self.axes = axes
+        
     def forward(self, x):
-        y = np.transpose(x)
+        y = x.transpose(self.axes)
         return y
     
     def backward(self, gy):
-        gx = transpose(gy)
+        if self.axes is None:
+            return transpose(gy)
+        
+        axes_len = len(self.axes)
+        inv_axes = tuple(np.argsort([ax % axes_len for ax in self.axes]))
+        gx = transpose(gy, inv_axes)
         return gx
     
 class SumTo(Function):
@@ -231,6 +239,15 @@ class RELU(Function):
         gx = gy * mask
         return gx
     
+class Max(Function):
+    def __init__(self, axis=None, keepdims=False):
+        self.axis = axis
+        self.keepdims = keepdims
+        
+    def forward(self, x):
+        y = x.max(axis=self.axis, keepdims=self.keepdims)
+        return y
+    
 def sin(x):
     return Sin()(x)
 
@@ -245,8 +262,8 @@ def reshape(x, shape):
         return as_variable(x)
     return Reshape(shape)(x)
 
-def transpose(x):
-    return Transpose()(x)
+def transpose(x, axes=None):
+    return Transpose(axes)(x)
 
 def sum_to(x, shape):
     return SumTo(shape)(x)
@@ -286,6 +303,9 @@ def softmax(x, axis=1):
 def clip(x, x_min, x_max):
     return Clip(x_min, x_max)(x)
 
+def max(x, axis=None, keepdims=False):
+    return Max(axis, keepdims)(x)
+
 def softmax_cross_entropy_simple(x, t):
     x, t = as_variable(x), as_variable(t)
     N = x.shape[0]
@@ -324,5 +344,7 @@ def relu(x):
 # im2col
 # ====================================================================
 from dezero.functions_conv import im2col
+from dezero.functions_conv import conv2d_simple
+from dezero.functions_conv import pooling_simple
 
     

@@ -6,7 +6,7 @@ import dezero.functions as F
 import dezero.layers as L
 import time
 from dezero import Variable, Parameter, optimizers, utils, DataLoader
-from dezero.models import TwoLayerNet, MLP
+from dezero.models import TwoLayerNet, MLP, VGG16
 from numpy.testing import assert_array_equal
 
 class Test31(unittest.TestCase):
@@ -522,6 +522,12 @@ class Test44(unittest.TestCase):
         
         x = np.arange(1, 17).reshape(4, 4)
         print(im2col(x, 2, 2))
+        
+    def test_VGG16_plot(self):
+        model = VGG16(pretrained=True)
+        
+        x = np.random.randn(1, 3, 224, 224).astype(np.float32)
+        model.plot(x)
     
     
     
